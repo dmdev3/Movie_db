@@ -1,0 +1,10 @@
+# created by virtualenv automatically
+
+
+# env
+.env
+.flake8
+.idea/
+__pycache__/
+venv/
+mdb_cluster/db_data
