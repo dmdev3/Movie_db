@@ -29,7 +29,6 @@ params = {
     "language": "en-US",  # Language for results
 }
 
-# Створення списку для зберігання кількості фільмів за кожний рік та жанр
 movie_counts = []
 while True:
     try:
@@ -110,7 +109,7 @@ while True:
 
                 params["primary_release_year"] = movie_year
 
-                # API Request to Movie webstie
+                # API Request to Movie website
                 response = requests.get(discover_endpoint, params=params)
                 data = response.json()
                 total_results = data.get("total_results", 0)
