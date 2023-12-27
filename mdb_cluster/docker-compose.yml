@@ -1,0 +1,103 @@
+version: "0.1"
+services:
+  storage:
+    container_name: "db_storage"
+    image: postgres:16.0
+    environment:
+      POSTGRES_DB: "db_test2"
+      POSTGRES_USER: "denysm"
+      POSTGRES_PASSWORD: "AnySecretPassword!!"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+      - ./init_db:/docker-entrypoint-initdb.d
+    networks:
+      - net1
+
+  gendataapp:
+    container_name: "gen_data_app"
+    build:
+      context: ./gen_app
+    image: mdb_genapp
+    environment:
+      DB_USER: 'denysm'
+      DB_PASSWORD: "AnySecretPassword!!"
+      DB_HOST: 'storage'
+      DB_PORT: '5432'
+      DB_NAME: 'db_test2'
+      API_KEY: '10a6f4154e2580cc3f85c5693ff3f166'
+    volumes:
+      - ./gen_app/app:/apps
+    depends_on:
+      - storage
+    networks:
+      - net1
+
+  gendataapp2:
+    container_name: "gen_data_app2"
+    build:
+      context: ./gen_app
+    image: mdb_genapp
+    environment:
+      DB_USER: 'denysm'
+      DB_PASSWORD: "AnySecretPassword!!"
+      DB_HOST: 'storage'
+      DB_PORT: '5432'
+      DB_NAME: 'db_test2'
+      API_KEY: '10a6f4154e2580cc3f85c5693ff3f166'
+    volumes:
+      - ./gen_app/app:/apps
+    depends_on:
+      - gendataapp
+    networks:
+      - net1
+
+  gendataapp3:
+    container_name: "gen_data_app3"
+    build:
+      context: ./gen_app
+    image: mdb_genapp
+    environment:
+      DB_USER: 'denysm'
+      DB_PASSWORD: "AnySecretPassword!!"
+      DB_HOST: 'storage'
+      DB_PORT: '5432'
+      DB_NAME: 'db_test2'
+      API_KEY: '10a6f4154e2580cc3f85c5693ff3f166'
+    volumes:
+      - ./gen_app/app:/apps
+    depends_on:
+      - gendataapp2
+    networks:
+      - net1
+
+
+  visapp:
+    container_name: "vis_app"
+    build:
+      context: ./vis_app
+    image: mdb_visapp
+    environment:
+      DB_USER: 'denysm'
+      DB_PASSWORD: "AnySecretPassword!!"
+      DB_HOST: 'storage'
+      DB_PORT: '5432'
+      DB_NAME: 'db_test2'
+      API_KEY: '10a6f4154e2580cc3f85c5693ff3f166'
+    ports:
+      - "8501:8501"
+      - "8502:8502"
+      - "8503:8503"
+      - "8504:8504"
+    volumes:
+      - ./vis_app/app:/app
+    depends_on:
+      - storage
+    networks:
+      - net1
+
+networks:
+  net1:
+    driver: bridge
