@@ -16,8 +16,8 @@ services:
     networks:
       - net1
 
-  gendataapp:
-    container_name: "gen_data_app"
+  gendataapp1:
+    container_name: "gen_data_app1"
     build:
       context: ./gen_app
     image: mdb_genapp
@@ -50,7 +50,7 @@ services:
     volumes:
       - ./gen_app/app:/apps
     depends_on:
-      - gendataapp
+      - gendataapp1
     networks:
       - net1
 
@@ -72,7 +72,6 @@ services:
       - gendataapp2
     networks:
       - net1
-
 
   visapp:
     container_name: "vis_app"
