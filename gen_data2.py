@@ -41,10 +41,9 @@ while True:
             host=settings.db_host,
             port=settings.db_port,
         )
-        # Створити об'єкт курсора
         cursor = conn.cursor()
 
-        # Створити таблицю, якщо вона не існує
+        # Create tables in db
         cursor.execute(
             """
 
@@ -111,7 +110,7 @@ while True:
 
                 params["primary_release_year"] = movie_year
 
-                # Запит для фільмів загального списку
+                # API Request to Movie webstie
                 response = requests.get(discover_endpoint, params=params)
                 data = response.json()
                 total_results = data.get("total_results", 0)
