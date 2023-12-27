@@ -14,8 +14,6 @@ genre_list = [
     [28, "Action"],
     [80, "Crime"],
     [18, "Drama"],
-    [10752, "War"],
-    [37, "Western"],
 ]
 
 worker_name = str(uuid.uuid4())
@@ -40,7 +38,6 @@ params = {
     "language": "en-US",  # Language for results
 }
 
-# Створення списку для зберігання кількості фільмів за кожний рік та жанр
 movie_counts = []
 while True:
     try:
@@ -52,10 +49,9 @@ while True:
             host=settings.db_host,
             port=settings.db_port,
         )
-        # Створити об'єкт курсора
         cursor = conn.cursor()
 
-        # Створити таблицю, якщо вона не існує
+        # Create tables in db
         cursor.execute(
             """
 
@@ -141,7 +137,7 @@ while True:
                 params["primary_release_year"] = movie_year
                 params["with_genres"] = genre_list[blocked_genre_id][0]
 
-                # Запит для фільмів загального списку
+                # API Request to Movie website
                 response = requests.get(discover_endpoint, params=params)
                 data = response.json()
                 total_results = data.get("total_results", 0)

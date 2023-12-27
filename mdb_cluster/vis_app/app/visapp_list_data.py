@@ -6,15 +6,12 @@ import time
 import matplotlib.pyplot as plt
 import settings
 
-# Завантажуємо змінні середовища з файлу .env
-
-# Отримуємо значення змінних середовища
+# Get db params
 db_user = settings.db_user
 db_password = settings.db_password
 db_host = settings.db_host
 db_port = settings.db_port
 db_name = settings.db_name
-
 
 # list of genre !! need to change
 genre_list = [
@@ -22,10 +19,7 @@ genre_list = [
     [99, "Documentary"],
     [27, "Horror"],
     [28, "Action"],
-    [80, "Crime"],
-    [18, "Drama"],
 ]
-
 
 st.title("Movie By Genre Count Per Year v0.8.1")
 chart_container = st.empty()

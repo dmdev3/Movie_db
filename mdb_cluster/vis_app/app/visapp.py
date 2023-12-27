@@ -8,7 +8,7 @@ import time
 import matplotlib.pyplot as plt
 import settings
 
-# Отримуємо значення змінних середовища
+# Get db params
 db_user = settings.db_user
 db_password = settings.db_password
 db_host = settings.db_host
