@@ -11,7 +11,7 @@ gen_data_waiting_for_reload = 0.2 * 60
 gen_data_waiting_for_apicall = 0
 
 # start pulling data from year
-gen_data_movie_since_year = 1950
+gen_data_movie_since_year = 1900
 
 load_dotenv()
 try:

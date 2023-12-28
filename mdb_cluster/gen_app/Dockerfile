@@ -22,4 +22,4 @@ WORKDIR /apps
 
 
 
-CMD python gen_list_data.py
+CMD python pulling_all_movie.py
