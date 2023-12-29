@@ -42,7 +42,7 @@ worker_name = str(uuid.uuid4())
 base_url = "https://api.themoviedb.org/3"
 # Endpoint for discovering movies
 discover_endpoint = f"{base_url}/discover/movie"
-
+PAGE_COUNT_LIMIT = 500
 genre_list = settings.genre_list
 
 # waiting secs for reloading data
@@ -106,8 +106,14 @@ while True:
                     blocked_year = result[0][0]
                     blocked_page = result[0][1]
                     blocked_flag = result[0][2]
-                    # if we do not have total pages in json, we need to continue increment page
+                    # if we do not have total pages in json, we need to continue increment page, if pages>pages_limit, set limit
                     total_pages = result[0][3] if result[0][3] else -2
+                    if result[0][3] == None:
+                        total_pages = -2
+                    elif result[0][3] >= PAGE_COUNT_LIMIT:
+                        total_pages = PAGE_COUNT_LIMIT - 1
+                    else:
+                        total_pages = result[0][3]
 
                 if blocked_flag == 0:
                     if blocked_year == movie_to_year and blocked_page == total_pages:
