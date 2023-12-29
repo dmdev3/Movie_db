@@ -8,7 +8,6 @@ import uuid
 import settings
 import init_db as storage
 
-
 def save_movie_object(movie_year, blocked_page, json_data):
     try:
         cursor = conn.cursor()
