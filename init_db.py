@@ -59,6 +59,7 @@ def create_db_objects(conn):
             , value2 text        
             , json_data JSONB            
         );
+        CREATE INDEX IF NOT EXISTS values_idx ON movie_data (value1, value2);
     """
     )
     conn.commit()

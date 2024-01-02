@@ -52,7 +52,9 @@ def db_add_data(conn, movie_year, movie_response_data):
     pass
 
 
-def get_param_for_request(conn, movie_since_year, movie_to_year, worker_name):
+def get_param_for_request(
+    conn, movie_since_year, movie_to_year, worker_name, list_end=False
+):
     try:
         # Get the last year
         cursor = conn.cursor()
@@ -85,7 +87,10 @@ def get_param_for_request(conn, movie_since_year, movie_to_year, worker_name):
                 )
                 conn.commit()
                 cursor.close()
-        return movie_year
+            else:
+                # If reach the end of the list
+                list_end = True
+        return movie_year, list_end
     except Exception:
         if cursor.closed is False:
             conn.rollback()
@@ -112,12 +117,19 @@ def main():
             storage.create_db_objects(conn)
 
             # Getting data
+            movie_finished_year = False
             movie_year = movie_since_year
             while movie_year < movie_to_year:
                 try:
-                    movie_year = get_param_for_request(
-                        conn, movie_since_year, movie_to_year, worker_name
+                    movie_year, movie_finished_year = get_param_for_request(
+                        conn,
+                        movie_since_year,
+                        movie_to_year,
+                        worker_name,
+                        movie_finished_year,
                     )
+                    if movie_finished_year == True:
+                        break
 
                     # Pulling info from movie res by API
                     movie_response_data = pulling_movie_resource(movie_year)
