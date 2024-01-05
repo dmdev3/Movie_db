@@ -8,4 +8,4 @@ __pycache__/
 venv/
 mdb_cluster/db_data
 sql_queries/
-#*2.py
+*2.py
