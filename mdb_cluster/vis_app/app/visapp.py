@@ -16,7 +16,7 @@ db_port = settings.db_port
 db_name = settings.db_name
 
 
-st.title("Movie Count Per Year v0.8")
+st.title("Movie Count Per Year v0.10.0")
 chart_container0 = st.empty()
 chart_container = st.empty()
 # Set the initial X and Y axis ranges

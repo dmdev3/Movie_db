@@ -1,0 +1,1 @@
+docker logs -f gen_data_app1

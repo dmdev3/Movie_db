@@ -18,7 +18,7 @@ gen_data_waiting_for_apicall = 0
 gen_data_waiting_for_apicall_on_error = 3
 
 # start pulling data from year
-gen_data_movie_since_year = 2000
+gen_data_movie_since_year = 1900
 
 # limit of number of page in API call
 PAGE_COUNT_LIMIT = 500
