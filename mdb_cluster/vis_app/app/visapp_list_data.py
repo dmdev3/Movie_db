@@ -13,15 +13,10 @@ db_host = settings.db_host
 db_port = settings.db_port
 db_name = settings.db_name
 
-# list of genre !! need to change
-genre_list = [
-    [35, "Comedy"],
-    [99, "Documentary"],
-    [27, "Horror"],
-    [28, "Action"],
-]
+# list of genre
+# genre_list = settings.genre_list
 
-st.title("Movie By Genre Count Per Year v0.8.1")
+st.title("Movie Count By Genre Per Year v0.10.0")
 chart_container = st.empty()
 # Set the initial X and Y axis ranges
 initial_x_range = (
@@ -44,7 +39,7 @@ for i in range(1000):
         )
 
         fig, ax = plt.subplots()
-        for genre_id in range(len(genre_list)):
+        for genre_id in range(len(settings.genre_list)):
             # SQL query to retrieve data from the view
             query = (
                 "SELECT "
@@ -55,7 +50,11 @@ for i in range(1000):
             # Read data into a DataFrame
             df = pd.read_sql_query(query, con=conn)
             # Create a line chart using Matplotlib
-            ax.plot(df["movieyear"], df["moviecount"], label=genre_list[genre_id][1])
+            ax.plot(
+                df["movieyear"],
+                df["moviecount"],
+                label=settings.genre_list[genre_id][1],
+            )
 
         ax.set_xlabel("Year")
         ax.set_ylabel("Movie Count")

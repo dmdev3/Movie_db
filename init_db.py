@@ -19,13 +19,14 @@ def create_db_objects(conn):
           WHERE 1 = 1 AND value1::integer > 1900 AND json_data -> 'total_results' IS NOT NULL
           ORDER BY movieyear;        
         CREATE TABLE IF NOT EXISTS movie_with_attr_total (
-            id SERIAL PRIMARY KEY,
-            created_at TIMESTAMP DEFAULT CURRENTmovie_by_page_TIMESTAMP,
-            value1 text,
-            value2 text,
-            value3 text,
-            json_data JSONB,
-            UNIQUE (value1, value2)
+            id SERIAL PRIMARY KEY
+            , created_at TIMESTAMP DEFAULT CURRENT
+            , movie_by_page_TIMESTAMP
+            , value1 text
+            , value2 text
+            , value3 text
+            , json_data JSONB
+            , UNIQUE (value1, value2)
         );        
         CREATE OR REPLACE VIEW movie_with_attr_total_per_year
              AS
