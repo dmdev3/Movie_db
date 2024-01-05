@@ -20,6 +20,10 @@ gen_data_waiting_for_apicall_on_error = 3
 # start pulling data from year
 gen_data_movie_since_year = 2000
 
+# limit of number of page in API call
+PAGE_COUNT_LIMIT = 500
+
+
 # genre list for pulling movie info
 genre_list = [
     [35, "Comedy"],
