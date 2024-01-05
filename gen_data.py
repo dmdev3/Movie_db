@@ -77,7 +77,7 @@ def get_param_for_request(
         if blocked_flag == 0:
             if movie_year < movie_to_year:
                 # continue loading process from existing year + 1
-                movie_year = movie_year + 1
+                movie_year += 1
                 cursor.execute(
                     "INSERT INTO movie_total_data (value1, value2, json_data) VALUES (%s, %s, NULL)",
                     (
@@ -135,10 +135,9 @@ def main():
                     movie_response_data = pulling_movie_resource(movie_year)
 
                     total_results = movie_response_data.get("total_results", 0)
-                    if movie_year % 1 == 0:
-                        logging.info(
-                            f"Total number of movies in {movie_year} year: {total_results}"
-                        )
+                    logging.info(
+                        f"Total number of movies in {movie_year} year: {total_results}"
+                    )
 
                     db_add_data(conn, movie_year, movie_response_data)
                     time.sleep(settings.gen_data_waiting_for_apicall)
@@ -147,7 +146,7 @@ def main():
                     logging.critical(f"Error in getting data: {e}")
                     time.sleep(settings.gen_data_waiting_for_apicall_on_error)
 
-            logging.info(f"The data was get to last year: {movie_to_year}")
+            logging.info(f"The data was got for the last year: {movie_to_year}")
             # all data in table, so we need to wait and reload all data again
             logging.info(
                 f"Waiting for {settings.gen_data_waiting_for_reload} secs to reload..."

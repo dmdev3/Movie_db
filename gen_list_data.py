@@ -51,13 +51,72 @@ def db_add_data(conn, movie_year, blocked_genre_id, movie_response_data):
     pass
 
 
+def get_param_for_request(
+    conn, movie_since_year, movie_to_year, worker_name, list_end=False
+):
+    try:
+        # Get the last year
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT "
+            " CAST(value1 AS INT) as movieyear"
+            " ,CAST(value2 AS INT) as moviegenreid"
+            " ,CASE WHEN CURRENT_TIMESTAMP - created_at > INTERVAL '1 minutes' AND json_data IS NULL THEN 1 ELSE 0 END AS LostRecords"
+            " FROM movie_with_attr_total"
+            " ORDER BY LostRecords DESC, value1 DESC, value2 DESC"
+            " LIMIT 1"
+        )
+        result = cursor.fetchall()
+
+        # Define start_year
+        if len(result) == 0:
+            movie_year = movie_since_year
+            blocked_genre_id = -1
+            blocked_flag = 0
+        else:
+            movie_year = result[0][0]
+            blocked_genre_id = result[0][1]
+            blocked_flag = result[0][2]
+
+        if blocked_flag == 0:
+            if (
+                movie_year == movie_to_year
+                and blocked_genre_id == len(settings.genre_list) - 1
+            ):
+                # data was loaded, so we can finish the process
+                list_end = True
+            else:
+                # continue loading process from existing year, gener + 1
+                if blocked_genre_id == len(settings.genre_list) - 1:
+                    blocked_genre_id = 0
+                    movie_year += 1
+                else:
+                    blocked_genre_id += 1
+
+                cursor.execute(
+                    "INSERT INTO movie_with_attr_total (value1, value2, value3, json_data) VALUES (%s, %s, %s, NULL)",
+                    (
+                        movie_year,
+                        blocked_genre_id,
+                        worker_name,
+                    ),
+                )
+                conn.commit()
+                cursor.close()
+
+        return movie_year, blocked_genre_id, list_end
+    except Exception:
+        if cursor.closed is False:
+            conn.rollback()
+        raise
+
+
 def main():
     worker_name = str(uuid.uuid4())
 
     movie_since_year = settings.gen_data_movie_since_year
     movie_to_year = int(datetime.date.today().year)
 
-    movie_counts = []
     while True:
         try:
             # Connect to PostgreSQL
@@ -73,57 +132,19 @@ def main():
             # Getting data block
             while True:
                 try:
-                    # Get the last year
-                    cursor = conn.cursor()
-                    cursor.execute(
-                        "SELECT "
-                        " CAST(value1 AS INT) as movieyear"
-                        " ,CAST(value2 AS INT) as movieyear"
-                        " ,CASE WHEN CURRENT_TIMESTAMP - created_at > INTERVAL '1 minutes' AND json_data IS NULL THEN 1 ELSE 0 END AS LostRecords"
-                        " FROM movie_with_attr_total"
-                        " ORDER BY LostRecords DESC, value1 DESC, value2 DESC"
-                        " LIMIT 1"
+                    (
+                        movie_year,
+                        blocked_genre_id,
+                        movie_finished_year,
+                    ) = get_param_for_request(
+                        conn,
+                        movie_since_year,
+                        movie_to_year,
+                        worker_name,
+                        list_end=False,
                     )
-                    result = cursor.fetchall()
-
-                    # Define start_year
-                    if len(result) == 0:
-                        blocked_year = movie_since_year
-                        blocked_genre_id = -1
-                        blocked_flag = 0
-                    else:
-                        blocked_year = result[0][0]
-                        blocked_genre_id = result[0][1]
-                        blocked_flag = result[0][2]
-
-                    if blocked_flag == 0:
-                        if (
-                            blocked_year == movie_to_year
-                            and blocked_genre_id == len(settings.genre_list) - 1
-                        ):
-                            # data was loaded we can finish the process
-                            break
-                        else:
-                            # continue loading process from existing year, gener + 1
-                            if blocked_genre_id == len(settings.genre_list) - 1:
-                                blocked_genre_id = 0
-                                movie_year = blocked_year + 1
-                            else:
-                                blocked_genre_id = blocked_genre_id + 1
-                                movie_year = blocked_year
-
-                            cursor.execute(
-                                "INSERT INTO movie_with_attr_total (value1, value2, value3, json_data) VALUES (%s, %s, %s, NULL)",
-                                (
-                                    movie_year,
-                                    blocked_genre_id,
-                                    worker_name,
-                                ),
-                            )
-                            conn.commit()
-                            cursor.close()
-                    else:
-                        movie_year = blocked_year
+                    if movie_finished_year == True:
+                        break
 
                     # Pulling info from movie res by API
                     movie_response_data = pulling_movie_resource(
@@ -131,23 +152,17 @@ def main():
                     )
 
                     total_results = movie_response_data.get("total_results", 0)
-
-                    if movie_year % 1 == 0:
-                        logging.info(
-                            f"Total number of {settings.genre_list[blocked_genre_id][1]} movies in {movie_year} year: {total_results}"
-                        )
+                    logging.info(
+                        f"Total number of {settings.genre_list[blocked_genre_id][1]} movies in {movie_year} year: {total_results}"
+                    )
                     db_add_data(conn, movie_year, blocked_genre_id, movie_response_data)
-
                     time.sleep(settings.gen_data_waiting_for_apicall)
-                    if movie_year == movie_to_year:
-                        break
+
                 except Exception as e:
                     logging.critical(f"Error in getting data: {e}")
-                    if cursor.closed is False:
-                        conn.rollback()
                     time.sleep(settings.gen_data_waiting_for_apicall_on_error)
 
-            logging.info(f"The data was get to last year: {movie_to_year}")
+            logging.info(f"The data was got for the last year: {movie_to_year}")
             # all data in table, so we need to wait and reload all data again
             logging.info(
                 f"Waiting for {settings.gen_data_waiting_for_reload} secs to reload..."
@@ -158,7 +173,7 @@ def main():
 
         except Exception as e:
             logging.critical(f"Error operation with database: {e}")
-            time.sleep(5)
+            time.sleep(settings.gen_data_waiting_for_reload)
 
 
 if __name__ == "__main__":
