@@ -20,6 +20,4 @@ RUN pip install -r /requirements.txt
   
 WORKDIR /apps
 
-
-
 CMD python gen_list_data.py
