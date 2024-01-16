@@ -1,1 +1,1 @@
-docker logs -f gen_data_app1
+docker logs -f mdb_cluster-gendataapp-1

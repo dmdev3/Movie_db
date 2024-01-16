@@ -26,10 +26,9 @@ def pulling_movie_resource(release_year: str, genre: int):
     try:
         # API Request to Movie website
         response = requests.get(discover_endpoint, params=params)
-        if response.status_code != 200:
-            raise RuntimeError("No data API call responses")
-    except Exception:
-        raise
+        response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API request failed - {e}")
     return response.json()
 
 
@@ -74,9 +73,11 @@ def get_param_for_request(
             blocked_genre_id = -1
             blocked_flag = 0
         else:
-            movie_year = result[0][0]
-            blocked_genre_id = result[0][1]
-            blocked_flag = result[0][2]
+            movie_year, blocked_genre_id, blocked_flag = (
+                result[0][0],
+                result[0][1],
+                result[0][2],
+            )
 
         if blocked_flag == 0:
             if (

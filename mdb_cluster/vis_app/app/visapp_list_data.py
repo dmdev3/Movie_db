@@ -16,7 +16,7 @@ db_name = settings.db_name
 # list of genre
 # genre_list = settings.genre_list
 
-st.title("Movie Count By Genre Per Year v0.10.0")
+st.title("Movie Count By Genre Per Year v0.10")
 chart_container = st.empty()
 # Set the initial X and Y axis ranges
 initial_x_range = (

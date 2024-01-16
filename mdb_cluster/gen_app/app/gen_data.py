@@ -24,10 +24,9 @@ def pulling_movie_resource(release_year: str):
     try:
         # API Request to Movie website
         response = requests.get(discover_endpoint, params=params)
-        if response.status_code != 200:
-            raise RuntimeError("No data API call responses")
-    except Exception:
-        raise
+        response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API request failed - {e}")
     return response.json()
 
 
@@ -71,8 +70,7 @@ def get_param_for_request(
             movie_year = movie_since_year - 1
             blocked_flag = 0
         else:
-            movie_year = result[0][0]
-            blocked_flag = result[0][1]
+            movie_year, blocked_flag = result[0][0], result[0][1]
 
         if blocked_flag == 0:
             if movie_year < movie_to_year:
@@ -99,7 +97,6 @@ def get_param_for_request(
 
 def main():
     worker_name = str(uuid.uuid4())
-
     movie_since_year = settings.gen_data_movie_since_year
     movie_to_year = int(datetime.date.today().year)
 
@@ -115,7 +112,6 @@ def main():
             )
 
             storage.create_db_objects(conn)
-
             # Getting data
             movie_finished_year = False
             movie_year = movie_since_year
